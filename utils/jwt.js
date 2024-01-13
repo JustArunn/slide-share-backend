@@ -10,12 +10,12 @@ const generateAuthToken = (payload) => {
 };
 
 const verifyAuthToken = (token) => {
-  jwt.verify(token, process.env.JWT_SECRET, (err, data) => {
-    if (err) {
-      throw new Error("Error in token verification ", err);
-    }
+  try {
+    const data = jwt.verify(token, process.env.JWT_SECRET);
     return data;
-  });
+  } catch (err) {
+    console.log("Erorr in verification of Auth-Token", err);
+  }
 };
 
 module.exports = {
