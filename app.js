@@ -15,10 +15,10 @@ app.use(
 );
 
 //routes imports
-const { userRouter } = require("./routes/user.routes.js");
+const { router } = require("./routes/user.routes.js");
 
 //routes init
-app.use("/api/v1/user", userRouter);
+app.use("/api/", router);
 
 module.exports = {
   app,

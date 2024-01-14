@@ -1,12 +1,28 @@
-const { signup, login, profile } = require("../controllers/user.controllers.js");
+const {
+  signup,
+  login,
+  profile,
+} = require("../controllers/user.controllers.js");
 const { auth } = require("../middleware/auth.middleware.js");
 const { upload } = require("../middleware/multer.middleware.js");
-const userRouter = require("express").Router();
+const router = require("express").Router();
 
-userRouter.post("/signup", upload.single("avatar"), signup);
-userRouter.post("/login", login);
-userRouter.get("/profile",auth, profile);
+router.post("/signup", upload.single("avatar"), signup);
+router.post("/login", login);
+router.get("/profile", auth, profile);
+
+//import file controllers
+const {
+  uploadFile,
+  updateFile,
+  deleteFile,
+} = require("../controllers/file.contollers.js");
+
+//file routes
+router.post("/upload-file", auth,upload.single("file"), uploadFile);
+router.post("/update-file", auth, updateFile);
+router.post("/delete-file", auth, deleteFile);
 
 module.exports = {
-  userRouter,
+  router,
 };

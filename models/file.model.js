@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const documentSchema = new mongoose.Schema(
+const fileSchema = new mongoose.Schema(
   {
     title: {
       type: String,
@@ -12,6 +12,11 @@ const documentSchema = new mongoose.Schema(
     author: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      requied: true,
+    },
+    fileLink: {
+      type: String,
+      requied: true,
     },
     likes: [
       {
@@ -23,4 +28,4 @@ const documentSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Document", documentSchema);
+module.exports = mongoose.model("File", fileSchema);

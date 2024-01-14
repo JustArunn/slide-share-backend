@@ -22,9 +22,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    documents: [
+    files: [
       {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref:"File",
       },
     ],
   },

@@ -1,7 +1,6 @@
 const { ApiError } = require("../utils/ApiError");
 const { AsyncHandler } = require("../utils/AsyncHandler");
 const User = require("../models/user.model.js");
-const Document = require("../models/document.model.js");
 const { uploadToCloudinary } = require("../config/cloudinary.js");
 const { ApiResponse } = require("../utils/ApiResponese.js");
 const { generateAuthToken } = require("../utils/jwt.js");
@@ -70,10 +69,10 @@ const login = AsyncHandler(async (req, res) => {
 });
 
 const profile = AsyncHandler(async (req, res) => {
-  const documents = await User.findOne({ email: req.user.email }).select(
-    "-name -email -password -_id -avatar -createdAt -updatedAt -__v"
+  const file = await User.findOne({ email: req.user.email }).select(
+    "-password -_id -createdAt -updatedAt -__v"
   );
-  return res.status(200).json(new ApiResponse("Profile fatched", documents));
+  return res.status(200).json(new ApiResponse("Profile fatched", file));
 });
 
 module.exports = {
