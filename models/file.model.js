@@ -18,6 +18,11 @@ const fileSchema = new mongoose.Schema(
       type: String,
       requied: true,
     },
+    category: {
+      type: String,
+      required: true,
+      index: true,
+    },
     likes: [
       {
         type: mongoose.Schema.Types.ObjectId,

@@ -71,7 +71,7 @@ const login = AsyncHandler(async (req, res) => {
 const profile = AsyncHandler(async (req, res) => {
   const file = await User.findOne({ email: req.user.email }).select(
     "-password -_id -createdAt -updatedAt -__v"
-  );
+  ).populate("files");
   return res.status(200).json(new ApiResponse("Profile fatched", file));
 });
 
