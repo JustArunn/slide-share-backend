@@ -81,6 +81,9 @@ const update = AsyncHandler(async (req, res) => {
 
 const _delete = AsyncHandler(async (req, res) => {
   const user = await User.findOne({ email: req.user.email });
+  if (!user) {
+    return res.status(404).json(new ApiError(404, "user not found"));
+  }
   await File.deleteMany({
     _id: {
       $in: [...user.files],
