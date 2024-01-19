@@ -15,10 +15,13 @@ app.use(
 );
 
 //routes imports
-const { router } = require("./routes/user.routes.js");
-
+const userRouter = require("./routes/user.routes.js");
+const fileRouter = require("./routes/file.routes.js");
+const feedRouter = require("./routes/feed.routes.js");
 //routes init
-app.use("/api/", router);
+app.use("/", feedRouter);
+app.use("/user/", userRouter);
+app.use("/file/", fileRouter);
 
 module.exports = {
   app,

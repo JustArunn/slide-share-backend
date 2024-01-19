@@ -4,7 +4,6 @@ const User = require("../models/user.model.js");
 const File = require("../models/file.model.js");
 const { ApiError } = require("../utils/ApiError.js");
 const { ApiResponse } = require("../utils/ApiResponese.js");
-const fs = require("fs");
 
 const uploadFile = AsyncHandler(async (req, res) => {
   const { title, description, category } = req.body;
@@ -26,11 +25,12 @@ const uploadFile = AsyncHandler(async (req, res) => {
     category: category,
   }).save();
 
-  await User.findOneAndUpdate(
-    { email: email },
-    { $push: { files: file._id } },
-    { new: true }
-  );
+  const user = await User.findOne({ email: email });
+  if (!user) {
+    return res.status(404).json(new ApiError(404, "User not found.."));
+  }
+  user.files.push(file._id);
+  await user.save();
 
   return res
     .status(200)
@@ -41,27 +41,42 @@ const updateFile = AsyncHandler(async (req, res) => {
   const { title, description } = req.body;
   const { id } = req.params;
 
-  const file = await File.findOneAndUpdate(
-    { _id: id },
-    { $set: { title: title, description: description } },
-    { new: true }
-  );
-  return res.status(200).json(new ApiResponse("File updated..", file));
+  const file = await File.findOne({ _id: id });
+  if (!file) {
+    return res.status(404).json(new ApiError(404, "file does not exists"));
+  }
+  file.title = title;
+  file.description = description;
+  const updatedFile = await file.save();
+
+  return res.status(200).json(new ApiResponse("File updated..", updatedFile));
 });
 
 const deleteFile = AsyncHandler(async (req, res) => {
   const { email } = req.user;
   const { id } = req.params;
 
-  await User.findOneAndUpdate(
-    { email: email },
-    { $pull: { files: id } },
-    { new: true }
-  );
-  const file = await File.findOneAndDelete({ _id: id });
-  if (file == null) {
+  const user = await User.findOne({ email: email });
+  if (!user) {
+    return res.status(404).json(new ApiError(404, "User not found"));
+  }
+  if (user.files.includes(id)) {
+    const index = user.files.indexOf(id);
+    if (index > -1) {
+      user.files.splice(index, 1);
+      await user.save();
+    }
+  }
+  if (user.likedFiles.includes(id)) {
+    const index = user.likedFiles.indexOf(id);
+    user.likedFiles.splice(index, 1);
+    await user.save();
+  }
+  const file = await File.findOne({ _id: id });
+  if (!file) {
     return res.status(404).json(new ApiError(404, "File does not exists"));
   }
+  await file.deleteOne();
   return res
     .status(200)
     .json(new ApiResponse("File deleted successully", file));
@@ -70,34 +85,24 @@ const deleteFile = AsyncHandler(async (req, res) => {
 const likeFile = AsyncHandler(async (req, res) => {
   const user = await User.findOne({ email: req.user.email });
   const file = await File.findOne({ _id: req.params.id });
-
-  if (file?.likes.includes(user._id)) {
-    await File.findOneAndUpdate(
-      { _id: req.params.id },
-      { $pull: { likes: user._id } },
-      { new: true }
-    );
-    await User.findOneAndUpdate(
-      { email: req.user.email },
-      { $pull: { likedFiles: file._id } },
-      { new: true }
-    );
+  if (!file) {
+    return res.status(404).json(new ApiError(404, "file does not exists"));
+  }
+  if (file.likes.includes(user._id)) {
+    const index = file.likes.indexOf(user._id);
+    file.likes.splice(index, 1);
+    const index2 = user.likedFiles.indexOf(req.params.id);
+    user.likedFiles.splice(index2, 1);
+    await file.save();
+    await user.save();
     return res.status(200).json(new ApiResponse("Unliked..."));
   }
 
-  const likedFile = await File.findOneAndUpdate(
-    { _id: req.params.id },
-    { $push: { likes: user._id } },
-    { new: true }
-  );
-
-  await User.findOneAndUpdate(
-    { email: req.user.email },
-    { $push: { likedFiles: file._id } },
-    { new: true }
-  );
-
-  return res.status(200).json(new ApiResponse("Liked...", likedFile));
+  file.likes.push(user._id);
+  user.likedFiles.push(req.params.id);
+  await file.save();
+  await user.save();
+  return res.status(200).json(new ApiResponse("Liked..."));
 });
 
 const likedFiles = AsyncHandler(async (req, res) => {
