@@ -1,5 +1,8 @@
 const { AsyncHandler } = require("../utils/AsyncHandler");
-const { uploadToCloudinary } = require("../config/cloudinary");
+const {
+  uploadToCloudinary,
+  deleteFromCloudinary,
+} = require("../config/cloudinary");
 const User = require("../models/user.model.js");
 const File = require("../models/file.model.js");
 const { ApiError } = require("../utils/ApiError.js");
@@ -7,7 +10,11 @@ const { ApiResponse } = require("../utils/ApiResponese.js");
 
 const uploadFile = AsyncHandler(async (req, res) => {
   const { title, description, category } = req.body;
-  const localFilePath = req.file.path;
+  const localFilePath = req.file?.path;
+
+  if (!localFilePath) {
+    return res.status(404).json(new ApiError(404, "localFilePath not found"));
+  }
   const email = req.user.email;
 
   if (!localFilePath) {
@@ -17,13 +24,15 @@ const uploadFile = AsyncHandler(async (req, res) => {
   }
   const cloudFile = await uploadToCloudinary(localFilePath);
 
-  const file = await File({
+  const file = File({
     title: title,
     description: description,
     author: req.user.id,
-    fileLink: cloudFile.secure_url,
     category: category,
-  }).save();
+  });
+  file.fileLink.url = cloudFile.secure_url;
+  file.fileLink.public_id = cloudFile.public_id;
+  await file.save();
 
   const user = await User.findOne({ email: email });
   if (!user) {
@@ -76,10 +85,10 @@ const deleteFile = AsyncHandler(async (req, res) => {
   if (!file) {
     return res.status(404).json(new ApiError(404, "File does not exists"));
   }
+  const public_id = file.fileLink.public_id;
+  await deleteFromCloudinary(public_id, "image");
   await file.deleteOne();
-  return res
-    .status(200)
-    .json(new ApiResponse("File deleted successully", file));
+  return res.status(200).json(new ApiResponse("File deleted successully"));
 });
 
 const likeFile = AsyncHandler(async (req, res) => {

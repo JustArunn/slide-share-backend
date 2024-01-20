@@ -2,7 +2,11 @@ const { ApiError } = require("../utils/ApiError");
 const { AsyncHandler } = require("../utils/AsyncHandler");
 const User = require("../models/user.model.js");
 const File = require("../models/file.model.js");
-const { uploadToCloudinary } = require("../config/cloudinary.js");
+const {
+  uploadToCloudinary,
+  deleteFromCloudinary,
+  deleteManyFromCloudinary,
+} = require("../config/cloudinary.js");
 const { ApiResponse } = require("../utils/ApiResponese.js");
 const fs = require("fs");
 
@@ -21,17 +25,26 @@ const signup = AsyncHandler(async (req, res) => {
   }
 
   const localFilePath = req.file?.path;
-  const avatar = await uploadToCloudinary(localFilePath);
-  if (!avatar) {
-    return res.json(new ApiError(402, "Avatar is required"));
+  if (!localFilePath) {
+    return res.status(404).json(new ApiError(404, "localFIlePath not found.."));
   }
-
-  const user = await User({
+  const avatar = await uploadToCloudinary(localFilePath, "image");
+  // const user = await User({
+  //   name: name,
+  //   email: email,
+  //   password: password,
+  //   avatar: avatar.secure_url,
+  // }).save();
+  const user = User({
     name: name,
     email: email,
     password: password,
-    avatar: avatar.secure_url,
-  }).save();
+  });
+
+  user.avatar.url = avatar.secure_url;
+  user.avatar.public_id = avatar.public_id;
+  await user.save();
+
   const token = user.generateAuthToken();
 
   const response = res
@@ -80,10 +93,15 @@ const update = AsyncHandler(async (req, res) => {
 });
 
 const _delete = AsyncHandler(async (req, res) => {
-  const user = await User.findOne({ email: req.user.email });
+  const user = await User.findOne({ email: req.user.email })
+    .populate("files")
+    .exec();
   if (!user) {
     return res.status(404).json(new ApiError(404, "user not found"));
   }
+  await deleteFromCloudinary(user.avatar.public_id, "image");
+  const public_ids = user.files.map((file) => file.fileLink.public_id);
+  await deleteManyFromCloudinary(public_ids, "image");
   await File.deleteMany({
     _id: {
       $in: [...user.files],

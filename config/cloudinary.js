@@ -7,10 +7,10 @@ cloudinary.config({
   api_secret: `${process.env.CLOUDINARY_API_SECRET}`,
 });
 
-const uploadToCloudinary = async (localFilePath) => {
+const uploadToCloudinary = async (localFilePath, resource_type) => {
   try {
     const cloudResponse = await cloudinary.uploader.upload(localFilePath, {
-      resource_type: "auto",
+      resource_type: resource_type,
     });
     if (localFilePath) {
       fs.unlinkSync(localFilePath);
@@ -18,10 +18,30 @@ const uploadToCloudinary = async (localFilePath) => {
     return cloudResponse;
   } catch (err) {
     fs.unlinkSync(localFilePath);
-    console.log("Error in cloudinary : ", err); 
+    console.log("Error in cloudinary : ", err.message);
   }
+};
+
+const deleteFromCloudinary = async (public_id, resource_type) => {
+  try {
+    const response = await cloudinary.uploader.destroy(public_id, {
+      resource_type: resource_type,
+    });
+    return response;
+  } catch (err) {
+    console.log("Error in coudinary file deletion,", err.message);
+  }
+};
+
+const deleteManyFromCloudinary = (public_ids, resource_type) => {
+  const deleted_res = public_ids.map(async (public_id) => {
+    await deleteFromCloudinary(public_id, resource_type);
+  });
+  return deleted_res;
 };
 
 module.exports = {
   uploadToCloudinary,
+  deleteFromCloudinary,
+  deleteManyFromCloudinary,
 };

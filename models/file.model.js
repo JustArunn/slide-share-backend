@@ -15,8 +15,14 @@ const fileSchema = new mongoose.Schema(
       requied: true,
     },
     fileLink: {
-      type: String,
-      requied: true,
+      url: {
+        type: String,
+        requied: true,
+      },
+      public_id: {
+        type: String,
+        requied: true,
+      },
     },
     category: {
       type: String,
