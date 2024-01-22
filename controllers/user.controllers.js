@@ -18,7 +18,9 @@ const signup = AsyncHandler(async (req, res) => {
   const exUser = await User.findOne({ email: email });
 
   if (exUser) {
-    fs.unlinkSync(req.file.path);
+    if (req.file.path) {
+      fs.unlinkSync(req.file.path);
+    }
     return res
       .status(401)
       .json(new ApiError(401, "User already exists with this email"));
