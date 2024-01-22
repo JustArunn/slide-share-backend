@@ -11,10 +11,10 @@ const {
   likedFiles,
 } = require("../controllers/file.contollers.js");
 
-router.post("/", auth, upload.single("file"), uploadFile);
-router.put("/:id", auth, updateFile);
-router.patch("/:id", auth, likeFile);
-router.get("/", auth, likedFiles);
-router.delete("/:id", auth, deleteFile);
+router.post("/upload", auth, upload.single("file"), uploadFile);
+router.put("/update/:id", auth, updateFile);
+router.patch("/like/:id", auth, likeFile);
+router.get("/liked", auth, likedFiles);
+router.delete("/delete/:id", auth, deleteFile);
 
 module.exports = router;

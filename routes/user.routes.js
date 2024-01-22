@@ -12,11 +12,11 @@ const {
   _delete,
 } = require("../controllers/user.controllers.js");
 
-router.post("/", upload.single("avatar"), signup);
-router.get("/", login);
-router.patch("/", auth, profile);
-router.put("/", auth, update);
-router.delete("/", auth, _delete);
+router.post("/signup", upload.single("avatar"), signup);
+router.post("/login", login);
+router.patch("/profile", auth, profile);
+router.put("/update", auth, update);
+router.delete("/delete", auth, _delete);
 router.delete("/logout", logout);
 
 module.exports = router;
