@@ -18,8 +18,8 @@ const signup = AsyncHandler(async (req, res) => {
   const exUser = await User.findOne({ email: email });
 
   if (exUser) {
-    if (req.file.path) {
-      fs.unlinkSync(req.file.path);
+    if (req.file?.path) {
+      fs.unlinkSync(req.file?.path);
     }
     return res
       .status(401)
