@@ -18,3 +18,9 @@ router.get("/liked", auth, likedFiles);
 router.delete("/delete/:id", auth, deleteFile);
 
 module.exports = router;
+
+// http://localhost:4000/file/upload - POST
+// http://localhost:4000/file/update/:id - PUT
+// http://localhost:4000/file/like/:id - PATCH
+// http://localhost:4000/file/liked - GET
+// http://localhost:4000/file/delete/:id - DELETE

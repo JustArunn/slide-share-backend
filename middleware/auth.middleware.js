@@ -12,9 +12,10 @@ const verifyAuthToken = (token) => {
 };
 
 const auth = AsyncHandler((req, res, next) => {
-  const token = req.headers["x-auth-token"] || req.cookies.token;
-  if(!token){
-    return res.status(400).json(new ApiError(400, "Please LogIn.."))
+  // const token = req.headers["x-auth-token"] || req.cookies.token;
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) {
+    return res.status(400).json(new ApiError(400, "Please LogIn.."));
   }
   const user = verifyAuthToken(token);
   if (user) {

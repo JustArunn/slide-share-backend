@@ -53,7 +53,7 @@ const signup = AsyncHandler(async (req, res) => {
     .status(201)
     .setHeader("x-auth-token", token)
     .cookie("token", token, { httpOnly: true })
-    .json(new ApiResponse("User created", user));
+    .json(new ApiResponse("User created", { user, token }));
   return response;
 });
 
@@ -79,7 +79,7 @@ const login = AsyncHandler(async (req, res) => {
     .status(200)
     .setHeader("x-auth-token", token)
     .cookie("token", token, { httpOnly: true })
-    .json(new ApiResponse("User LoggedIn", user));
+    .json(new ApiResponse("User LoggedIn", { user, token }));
 });
 
 const update = AsyncHandler(async (req, res) => {

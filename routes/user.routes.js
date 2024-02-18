@@ -20,3 +20,10 @@ router.delete("/delete", auth, _delete);
 router.delete("/logout", logout);
 
 module.exports = router;
+
+// http://localhost:4000/user/signup - POST
+// http://localhost:4000/user/login  - POST
+// http://localhost:4000/user/profile- PATCH
+// http://localhost:4000/user/update - UPDATE
+// http://localhost:4000/user/delete - DELETE
+// http://localhost:4000/user/logout - DELETE
