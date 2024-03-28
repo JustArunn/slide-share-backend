@@ -9,7 +9,7 @@ const feed = AsyncHandler(async (req, res) => {
     .limit(10);
 
   if (feedData.length < 1) {
-    return res.status(404).json(new ApiError(`no data for feed`));
+    return res.status(404).json(new ApiError(200,`no data for feed`));
   }
   return res.status(200).json(new ApiResponse("Feed data", feedData));
 });
