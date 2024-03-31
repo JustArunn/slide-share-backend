@@ -30,7 +30,7 @@ const signup = AsyncHandler(async (req, res) => {
   if (!localFilePath) {
     return res.status(404).json(new ApiError(404, "localFIlePath not found.."));
   }
-  const avatar = await uploadToCloudinary(localFilePath, "image");
+  let avatar = await uploadToCloudinary(localFilePath, "image");
   // const user = await User({
   //   name: name,
   //   email: email,
@@ -42,6 +42,11 @@ const signup = AsyncHandler(async (req, res) => {
     email: email,
     password: password,
   });
+
+  if (!avatar.secure_url) {
+    console.log("Trying again to upload file to cloudinary....");
+    avatar = await uploadToCloudinary(localFilePath, "image");
+  }
 
   user.avatar.url = avatar.secure_url;
   user.avatar.public_id = avatar.public_id;
