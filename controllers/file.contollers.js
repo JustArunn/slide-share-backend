@@ -12,6 +12,8 @@ const uploadFile = AsyncHandler(async (req, res) => {
   const { title, description, category } = req.body;
   const localFilePath = req.file?.path;
 
+  console.log("REQ BODY AND FIEL..........", req.body, "LOCAL FILE PATH............",localFilePath);
+
   if (!localFilePath) {
     return res.status(404).json(new ApiError(404, "localFilePath not found"));
   }
